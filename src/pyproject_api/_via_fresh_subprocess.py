@@ -28,7 +28,7 @@ class SubprocessCmdStatus(CmdStatus, Thread):
 
     @property
     def done(self) -> bool:
-        return self.process.returncode is not None
+        return self._out_err is not None
 
     def out_err(self) -> tuple[str, str]:
         return cast("tuple[str, str]", self._out_err)
