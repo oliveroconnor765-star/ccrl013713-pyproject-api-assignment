@@ -28,7 +28,12 @@ class SubprocessCmdStatus(CmdStatus, Thread):
 
     @property
     def done(self) -> bool:
-        return self.process.returncode is not None
+        # Use thread liveness rather than ``process.returncode`` so that
+        # ``done`` only becomes True after ``communicate()`` has finished
+        # collecting both stdout and stderr into ``_out_err``.  Checking
+        # ``returncode`` alone creates a race: ``communicate()`` sets the
+        # return code before it finishes reading the output pipes.
+        return not self.is_alive()
 
     def out_err(self) -> tuple[str, str]:
         return cast("tuple[str, str]", self._out_err)
